@@ -1,9 +1,29 @@
-# [An Online Gomaku Gaming Website](https://gomaku.herokuapp.com/)
+# gomaku
 
-Still under construction.
+## Project setup
+```
+npm install
+```
 
-## Author
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
 
-[Stid Zhang](https://github.com/StidZhang)
+### Compiles and minifies for production
+```
+npm run build
+```
 
-[Yang Gao](https://github.com/criyle)
+### Run your tests
+```
+npm run test
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
