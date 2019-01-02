@@ -1,19 +1,20 @@
 import os
-from flask import Flask, send_file
+from flask import Flask, send_file, request, jsonify
 from flask_login import LoginManager
 from flask_socketio import SocketIO
 
 
 def create_app():
-    from .config import Config
     app = Flask(__name__, static_folder='../dist', static_url_path='')
-    app.config.from_mapping(
-        SECRET_KEY=Config.SECRET_KEY
-    )
+
+    from .config import Config
+    app.config.from_object(Config)
 
     @app.route('/')
     @app.errorhandler(404)
     def index(e=None):
+        if request.path.startswith('/api/'):
+            return jsonify(status=404), 404
         entry = os.path.join('../dist', 'index.html')
         return send_file(entry)
 

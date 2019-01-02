@@ -30,7 +30,7 @@ def login():
         if current_user.is_authenticated:
             return jsonify(status=0, username=current_user.username)
         else:
-            return jsonify(staus=-1, message='Not logged in')
+            return jsonify(status=-1, message='Not logged in')
 
 
 @bp.route('/register', methods=['POST'])

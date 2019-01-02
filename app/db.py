@@ -1,11 +1,10 @@
-from flask import g
+from flask import g, current_app
 from pymongo import MongoClient
 from pymongo.collation import Collation, CollationStrength
-from .config import Config
 
 
 def get_uri():
-    return Config.MONGODB_URI
+    return current_app.config['MONGODB_URI']
 
 
 def init_db(db):
