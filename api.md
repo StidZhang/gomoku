@@ -10,17 +10,28 @@
 | POST   | /api/register     |         |
 | POST   | /api/changepasswd |         |
 
-Cookie: token
-
-## Game
+## Gomoku
 
 | method | path                | comment |
 | ------ | ------------------- | ------- |
 | GET    | /api/gomoku/history |         |
-| POST   | /api/gomoku/create  |         |
-| POST   | /api/gomoku/join    |         |
 
-websocket:
+## SocketIO
+
+| direction | event                 | comment                      |
+| --------- | --------------------- | ---------------------------- |
+| c -> s    | connected             | check current_game / invite  |
+| c -> s    | gomoku_create         | create a game                |
+| c -> s    | gomoku_join           | join a game                  |
+| c -> s    | gomoku_fail           | fail a game                  |
+| c -> s    | gomoku_move           | a move                       |
+| s -> c    | gomoku_status         | reply for connected          |
+| s -> c    | gomoku_invite         | to another c for create game |
+| s -> c    | gomoku_invite_success | to host for success invite   |
+| s -> c    | gomoku_invite_failed  | to host for failed invite    |
+| s -> c    | gomoku_board          | to both for a join           |
+| s -> c    | gomoku_board_update   | to another c for move        |
+| s -> c    | gomoku_end            | to both for game end / fail  |
 
 # CSS
 
@@ -34,7 +45,7 @@ websocket:
 
 ## User logic
 
-..
+Flask-Login
 
 # Frontend
 
@@ -68,6 +79,15 @@ User ..
 | password | text     |
 | created  | datetime |
 
+## User_Gomoku
+
+| field        | type   |
+| ------------ | ------ |
+| userid       | userid |
+| current_game | gameid |
+| total_won    | int    |
+| total_game   | int    |
+
 ## Gomoku
 
 | field      | type            |
@@ -81,10 +101,13 @@ User ..
 
 status(IntEnum):
 
--   1 - Host
--   2 - Guest
--   3 - Host won
--   4 - Guest won
+-   1 - New
+-   2 - Host
+-   3 - Guest
+-   4 - Host won
+-   5 - Guest won
+-   6 - Host Canceled
+-   7 - Guest Refused
 
 # Data Model
 
