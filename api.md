@@ -46,11 +46,17 @@ User ..
 
 # Route
 
-## /
+## Authentications
 
-## /history
+### /login
 
-## /gomoku
+### /register
+
+## In game
+
+### /history
+
+### /gomoku
 
 # Database
 
