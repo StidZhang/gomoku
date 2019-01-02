@@ -12,7 +12,8 @@ def create_app():
     )
 
     @app.route('/')
-    def index():
+    @app.errorhandler(404)
+    def index(e=None):
         entry = os.path.join('../dist', 'index.html')
         return send_file(entry)
 
