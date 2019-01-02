@@ -35,4 +35,7 @@ def create_app():
     login_manager.init_app(app)
     socketio = SocketIO(app)
 
+    from .gomoku import GomokuSocket
+    socketio.on_namespace(GomokuSocket())
+
     return app

@@ -49,13 +49,15 @@ def register():
     if u is not None:
         return jsonify(status=-1, message="User already exists")
 
-    create_user(username, generate_password_hash(password))
+    u = create_user(username, generate_password_hash(password))
+    login_user(User(u))
     return jsonify(status=0, username=username)
 
 
 @bp.route('/logout', methods=['POST'])
 def logout():
     logout_user()
+    return jsonify(status=0)
 
 
 @bp.route('/changepasswd', methods=['GET'])

@@ -22,7 +22,8 @@ def create_user(username, password):
         "created": datetime.utcnow()
     }
     user = get_user_collection()
-    return user.insert_one(u)
+    user.insert_one(u)
+    return u
 
 
 def change_user_password(userid, password):

@@ -1,17 +1,34 @@
+import functools
 from flask import g, current_app
 from pymongo import MongoClient
 from pymongo.collation import Collation, CollationStrength
+
+
+def run_once(f):
+    @functools.wraps(f)
+    def wraps(*args, **kwargs):
+        if not wraps.has_run:
+            wraps.has_run = True
+            return f(*args, **kwargs)
+    wraps.has_run = False
+    return wraps
 
 
 def get_uri():
     return current_app.config['MONGODB_URI']
 
 
+@run_once
 def init_db(db):
     user = db.user
-    user.create_index('username',
-                      unique=True,
-                      collation=Collation(locale='en', strength=CollationStrength.SECONDARY))
+    user.create_index(
+        'username',
+        unique=True,
+        collation=Collation(
+            locale='en',
+            strength=CollationStrength.SECONDARY
+        )
+    )
 
 
 def get_db():
