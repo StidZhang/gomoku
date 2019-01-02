@@ -39,7 +39,7 @@
       <a-button type='primary' htmlType='submit' class="register-form-button">
         Register
       </a-button>
-      Or <a href='/login'>back to login!</a>
+      Or <router-link to='login'>back to login!</router-link>
     </a-form-item>
   </a-form>
 </div>

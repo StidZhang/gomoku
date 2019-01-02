@@ -29,7 +29,7 @@
         <a-button type='primary' htmlType='submit' class='login-form-button'>
           Log in
         </a-button>
-        Or <a href='/register'>register now!</a>
+        Or <router-link to='register'>register now!</router-link>
       </a-form-item>
     </a-form>
   </div>
