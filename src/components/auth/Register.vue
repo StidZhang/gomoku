@@ -46,6 +46,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   beforeCreate() {
     this.form = this.$form.createForm(this)
@@ -55,7 +56,18 @@ export default {
       e.preventDefault()
       this.form.validateFieldsAndScroll((err, values) => {
         if (!err) {
-          console.log('Received values of form: ', values)
+          axios.post('/api/register', values)
+            .then((response) => {
+              var data = response.data;
+              if (data.status == -1) {
+                this.$message.error(data.message);
+              } else {
+                this.$router.push('/gomoku')
+              }
+            })
+            .catch((error) => {
+              this.$message.error(error);
+            })
         }
       })
     },

@@ -5,7 +5,7 @@
         <a-input
           placeholder='Username'
           v-decorator="[
-            'userName',
+            'username',
             { rules: [{ required: true, message: 'Please input your username!' }] }
           ]"
         >
@@ -16,7 +16,7 @@
         <a-input
           v-decorator="[
             'password',
-            { rules: [{ required: true, message: 'Please input your Password!' }] }
+            { rules: [{ required: true, message: 'Please input your password!' }] }
           ]"
           type='password'
           placeholder='Password'
@@ -36,7 +36,7 @@
 </template>
 
 <script>
-
+import axios from 'axios'
 export default {
   beforeCreate () {
     this.form = this.$form.createForm(this)
@@ -46,7 +46,18 @@ export default {
       e.preventDefault()
       this.form.validateFields((err, values) => {
         if (!err) {
-          console.log('Received values of form: ', values)
+          axios.post('/api/login', values)
+            .then((response) => {
+              var data = response.data;
+              if (data.status == -1) {
+                this.$message.error(data.message);
+              } else {
+                this.$router.push('/gomoku')
+              }
+            })
+            .catch((error) => {
+              this.$message.error(error);
+            })
         }
       })
     },

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home.vue'
+import Gomoku from '@/views/Gomoku.vue'
 import Login from '@/components/auth/Login.vue'
 import Register from '@/components/auth/Register.vue'
 
@@ -24,6 +25,11 @@ export default new Router({
       path: '/register',
       name: 'register',
       component: Register
+    },
+    {
+      path: '/gomoku',
+      name: 'gomoku',
+      component: Gomoku
     }
   ]
 })
