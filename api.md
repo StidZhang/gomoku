@@ -81,12 +81,13 @@ User ..
 
 ## User_Gomoku
 
-| field        | type   |
-| ------------ | ------ |
-| userid       | userid |
-| current_game | gameid |
-| total_won    | int    |
-| total_game   | int    |
+| field        | type                    |
+| ------------ | ----------------------- |
+| userid       | userid                  |
+| current_game | gameid                  |
+| session      | list of current session |
+| total_won    | int                     |
+| total_game   | int                     |
 
 ## Gomoku
 
@@ -106,7 +107,7 @@ status(IntEnum):
 -   3 - Guest
 -   4 - Host won
 -   5 - Guest won
--   6 - Host Canceled
+-   6 - Host Cancelled
 -   7 - Guest Refused
 
 # Data Model

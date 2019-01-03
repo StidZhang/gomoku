@@ -24,12 +24,12 @@ def create_app():
     from . import db
     db.init_app(app)
 
-    from .user import get_user_by_name, User
+    from .user import get_user_by_id, User
     login_manager = LoginManager()
 
     @login_manager.user_loader
     def load_user(user_id):
-        u = get_user_by_name(user_id)
+        u = get_user_by_id(user_id)
         return User(u) if u is not None else None
 
     login_manager.init_app(app)
