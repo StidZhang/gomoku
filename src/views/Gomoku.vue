@@ -9,6 +9,11 @@
 <script>
 import axios from 'axios'
 export default {
+  sockets: {
+    connect() {
+      console.log('socket connected')
+    }
+  },
   methods: {
     logout() {
       axios.post('/api/logout')
