@@ -8,19 +8,19 @@ export default new Vuex.Store({
     username: ""
   },
   mutations: {
-    set(state, username) {
+    setUsername(state, username) {
       state.username = username
     },
-    reset(state) {
+    resetUsername(state) {
       state.username = ""
     }
   },
   actions: {
-    set({ commit }, username) {
-      commit('set', username)
+    setUsername({ commit }, username) {
+      commit('setUsername', username)
     },
-    reset({ commit }) {
-      commit('reset')
+    resetUsername({ commit }) {
+      commit('resetUsername')
     }
   }
 })

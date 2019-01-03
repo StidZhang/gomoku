@@ -9,20 +9,22 @@
 <script>
 import axios from 'axios'
 export default {
+  mounted() {
+    // this.sockets.subscribe('*')
+  },
   sockets: {
     connect() {
-      console.log('socket connected')
+      this.$socket.emit("connected")
     }
   },
   methods: {
     logout() {
       axios.post('/api/logout')
         .then((response) => {
-          console.log(response)
+          this.$store.dispatch("resetUsername")
           this.$router.push('/')
         })
         .catch((error) => {
-          console.log(error)
           this.$message.error(error)
         })
     }

@@ -15,6 +15,7 @@ export default {
         if (data.status == -1) {
           this.$router.push("/login")
         } else {
+          this.$store.dispatch('setUsername', data.username)
           this.$router.push("/gomoku")
         }
       })

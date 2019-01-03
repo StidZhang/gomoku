@@ -12,7 +12,6 @@ Vue.use(Antd)
 
 Vue.use(new VueSocketIO({
   debug: true,
-  // TODO: Need to examine the connection string
   connection: '//' + document.domain + ':' + location.port,
   vuex: {
     store,
