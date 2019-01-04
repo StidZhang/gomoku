@@ -29,6 +29,21 @@ def init_db(db):
             strength=CollationStrength.SECONDARY
         )
     )
+    user_gomoku = db.user_gomoku
+    user_gomoku.create_index(
+        'userid',
+        unique=True,
+    )
+    gomoku = db.gomoku
+    gomoku.create_index(
+        'status'
+    )
+    gomoku.create_index(
+        'game_host'
+    )
+    gomoku.create_index(
+        'game_guest'
+    )
 
 
 def get_db():

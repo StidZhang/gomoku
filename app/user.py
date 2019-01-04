@@ -1,6 +1,7 @@
 from datetime import datetime
 from .db import get_db
 from pymongo.collation import Collation, CollationStrength
+from bson import ObjectId
 
 
 def get_user_collection():
@@ -13,6 +14,12 @@ def get_user_by_name(name):
     return user.find_one({
         "username": name
     }, collation=Collation(locale='en', strength=CollationStrength.SECONDARY))
+
+
+def get_user_by_id(id):
+    user = get_user_collection()
+    oid = ObjectId(id)
+    return user.find_one({"_id": oid})
 
 
 def create_user(username, password):
@@ -31,7 +38,7 @@ def change_user_password(userid, password):
     return user.find_one_and_update({
         "_id": userid
     }, {
-        "password": password
+        "$set": {"password": password}
     })
 
 
@@ -42,6 +49,7 @@ class User(object):
         self.is_anonymous = False
         self.user = user
         self.username = user['username']
+        self.oid = user['_id']
 
     def get_id(self):
-        return self.username
+        return str(self.oid)
