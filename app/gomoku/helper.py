@@ -48,22 +48,54 @@ def get_gomoku_invite(id):
     return [str(e['_id']) for e in q]
 
 
-def set_user_current_game(uid, gameid):
+def get_user_gomoku_id(uid):
     ug = get_user_gomoku_by_uid(uid)
     ugc = get_user_gomoku_collection()
     if ug is None:
-        ugc.insert_one({
+        return ugc.insert_one({
             'userid': ObjectId(uid),
-            'current_game': ObjectId(gameid),
+            'current_game': None,
+            'session': [],
             'total_won': 0,
             'total_game': 0,
-        })
+        }).inserted_id
     else:
-        ugc.find_one_and_update({
-            '_id': ug['_id']
-        }, {
-            '$set': {'current_game': ObjectId(gameid)}
-        })
+        return ug['_id']
+
+
+def set_user_current_game(uid, gameid):
+    ugid = get_user_gomoku_id(uid)
+    ugc = get_user_gomoku_collection()
+    ugc.find_one_and_update({
+        '_id': ugid
+    }, {
+        '$set': {'current_game': ObjectId(gameid)}
+    })
+
+
+def session_connected(uid, sid):
+    ugid = get_user_gomoku_id(uid)
+    ugc = get_user_gomoku_collection()
+    ugc.find_one_and_update({
+        '_id': ugid
+    }, {
+        '$addToSet': sid
+    })
+
+
+def session_disconnected(uid, sid):
+    ugid = get_user_gomoku_id(uid)
+    ugc = get_user_gomoku_collection()
+    ugc.find_one_and_update({
+        '_id': ugid
+    }, {
+        '$pull': sid
+    })
+
+
+def get_user_session(uid):
+    ug = get_user_gomoku_by_uid(uid)
+    return ug.get('session') if ug is not None else None
 
 
 def get_game_status(uid):
@@ -84,6 +116,7 @@ def create_game(uid, config):
         raise Exception()
 
     c = config.get('config', {})
+    c['size'] = size
 
     gomoku = get_gomoku_collection()
     g = {
@@ -112,6 +145,7 @@ def join_game(uid, gid):
         }, {
             '$set': {'status': int(GomokuStatus.Host)}
         })
+    return g
 
 
 def get_gomoku_status(gid):
