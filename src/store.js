@@ -5,7 +5,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    username: ""
+    username: "",
+    gid: ""
   },
   mutations: {
     setUsername(state, username) {
@@ -13,6 +14,12 @@ export default new Vuex.Store({
     },
     resetUsername(state) {
       state.username = ""
+    },
+    setGid(state, gid) {
+      state.gid = gid
+    },
+    resetGid(state) {
+      state.gid = ""
     }
   },
   actions: {
@@ -21,6 +28,12 @@ export default new Vuex.Store({
     },
     resetUsername({ commit }) {
       commit('resetUsername')
+    },
+    setGid({ commit }, gid) {
+      commit('setGid', gid)
+    },
+    resetGid({ commit }) {
+      commit('resetGid')
     }
   }
 })
