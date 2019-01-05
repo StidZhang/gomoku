@@ -8,7 +8,7 @@ from ..db import close_db
 from .helper import (
     get_game_status, create_game, join_game, get_gomoku_status,
     session_connected, session_disconnected, get_user_session,
-    GomokuStatus, get_game_by_id
+    GomokuStatus, get_game_by_id, surrender
 )
 from ..user import (
     get_user_by_name
@@ -86,8 +86,11 @@ class GomokuSocket(Namespace):
             for s in ss:
                 self.emit('gomoku_invite_failed', room=s)
         else:
-            pass
+            w = surrender(current_user.get_id(), g)
+            self.emit('gomoku_end', {
+                'win': w
+            }, room=str(g['_id']))
 
     @auth_only
     def on_gomoku_move(self, move):
-        g = get_game_by_id(gid)
+        pass
