@@ -103,7 +103,7 @@ def get_game_status(uid):
     current_game = ug.get('current_game', None) if ug is not None else None
     invites = get_gomoku_invite(uid)
     return {
-        'current_game': str(current_game),
+        'current_game': str(current_game) if current_game is not None else None,
         'invites': invites
     }
 
