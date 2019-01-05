@@ -45,7 +45,7 @@ class GomokuSocket(Namespace):
     @auth_only
     def on_connect(self):
         status = get_game_status(current_user.get_id())
-        self.emit('gomoku_status', status)
+        self.emit('gomoku_status', status, room=request.sid)
         session_connected(current_user.get_id(), request.sid)
 
     @nonauth
