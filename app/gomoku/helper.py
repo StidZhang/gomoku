@@ -180,17 +180,21 @@ def get_gomoku_status(gid):
     }
 
 
+def remove_current_game(uid):
+    ugc = get_user_gomoku_collection()
+    ugc.find_one_and_update({
+        'userid': ObjectId(uid)
+    }, {
+        '$set': {'current_game': None}
+    })
+
+
 def cancel_game(uid, g):
     host = g.get('game_host')
     gc = get_gomoku_collection()
-    ugc = get_user_gomoku_collection()
     status = GomokuStatus.HostCancelled
     if str(uid) == str(host):
-        ugc.find_one_and_update({
-            'userid': host
-        }, {
-            '$set': {'current_game': None}
-        })
+        remove_current_game(host)
     else:
         status = GomokuStatus.GuestRefused
 
@@ -208,21 +212,12 @@ def surrender(uid, g):
         return
     status = GomokuStatus.HostWon if str(uid) == str(guest) else GomokuStatus.GuestWon
     gc = get_gomoku_collection()
-    ugc = get_user_gomoku_collection()
     gc.find_one_and_update({
         '_id': g['_id']
     }, {
         '$set': {'status': int(status)}
     })
-    ugc.find_one_and_update({
-        'userid': host
-    }, {
-        '$set': {'current_game': None}
-    })
-    ugc.find_one_and_update({
-        'userid': guest
-    }, {
-        '$set': {'current_game': None}
-    })
+    remove_current_game(host)
+    remove_current_game(guest)
     win = get_user_by_id(host if status == GomokuStatus.HostWon else guest)
     return win['username']

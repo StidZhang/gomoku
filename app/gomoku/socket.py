@@ -100,6 +100,7 @@ class GomokuSocket(Namespace):
     def on_gomoku_move(self, move):
         try:
             g = GomokuLogic(current_user.get_id())
-            g.move(move)
-        except InvalidOperationException as e:
+            data = g.move(move)
+            self.emit('gomoku_board_update', data, room=g.gid)
+        except InvalidOperationException:
             pass
