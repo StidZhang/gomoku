@@ -8,7 +8,7 @@ from ..db import close_db
 from .helper import (
     get_game_status, create_game, join_game, get_gomoku_status,
     session_connected, session_disconnected, get_user_session,
-    GomokuStatus, get_game_by_id, surrender
+    GomokuStatus, get_game_by_id, surrender, cancel_game
 )
 from ..user import (
     get_user_by_name
@@ -48,7 +48,7 @@ class GomokuSocket(Namespace):
     @nonauth
     def on_disconnect(self):
         if current_user.is_authenticated:
-            session_connected(current_user.get_id(), request.sid)
+            session_disconnected(current_user.get_id(), request.sid)
 
     @auth_only
     def on_gomoku_create(self, config):
@@ -81,10 +81,12 @@ class GomokuSocket(Namespace):
     def on_gomoku_fail(self, gid):
         g = get_game_by_id(gid)
         if g['status'] == GomokuStatus.New:
+            cancel_game(current_user.get_id(), g)
             hostid = g['game_host']
-            ss = get_user_session(hostid)
-            for s in ss:
-                self.emit('gomoku_invite_failed', room=s)
+            if current_user.get_id() == str(hostid):
+                ss = get_user_session(hostid)
+                for s in ss:
+                    self.emit('gomoku_invite_failed', room=s)
         else:
             w = surrender(current_user.get_id(), g)
             self.emit('gomoku_end', {
