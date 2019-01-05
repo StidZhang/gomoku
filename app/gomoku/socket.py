@@ -45,7 +45,7 @@ class GomokuSocket(Namespace):
     @auth_only
     def on_connect(self):
         status = get_game_status(current_user.get_id())
-        self.emit('gomoku_status', status)
+        self.emit('gomoku_status', status, room=request.sid)
         session_connected(current_user.get_id(), request.sid)
 
     @nonauth
@@ -78,7 +78,7 @@ class GomokuSocket(Namespace):
                 }, room=s)
 
         join_room(gid)
-        self.emit('gomoku_board', get_gomoku_status(gid))
+        self.emit('gomoku_board', get_gomoku_status(gid), room=request.sid)
 
     @auth_only
     def on_gomoku_fail(self, gid):
@@ -99,6 +99,7 @@ class GomokuSocket(Namespace):
     @auth_only
     def on_gomoku_move(self, move):
         try:
-            pass
+            g = GomokuLogic(current_user.get_id())
+            g.move(move)
         except InvalidOperationException as e:
             pass

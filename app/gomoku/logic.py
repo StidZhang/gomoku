@@ -1,6 +1,7 @@
 from enum import IntEnum
 from .helper import (
-    get_game_by_id, get_gomoku_collection, GomokuStatus
+    get_game_by_id, get_gomoku_collection, GomokuStatus,
+    get_user_gomoku_by_uid
 )
 
 
@@ -19,8 +20,11 @@ class InvalidOperationException(Exception):
 
 
 class GomokuLogic(object):
-    def __init__(self, uid, gid):
-        g = get_game_by_id(gid)
+    def __init__(self, uid):
+        ug = get_user_gomoku_by_uid(uid)
+        if ug['current_game'] is None:
+            raise InvalidOperationException()
+        g = get_game_by_id(ug['current_game'])
         if g is None:
             raise InvalidOperationException()
         self.g = g
