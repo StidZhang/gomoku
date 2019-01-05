@@ -168,7 +168,7 @@ def get_gomoku_status(gid):
     guest = get_user_by_id(guest_id) if guest_id is not None else None
 
     return {
-        'gid': g['_id'],
+        'gid': str(g['_id']),
         'board': g['board'],
         'history': g['history'],
         'host': {
@@ -178,3 +178,30 @@ def get_gomoku_status(gid):
             'username': guest['username'],
         } if guest is not None else None,
     }
+
+
+def surrender(uid, g):
+    host = g.get('game_host')
+    guest = g.get('game_guest')
+    if str(uid) != str(host) and str(uid) != str(guest):
+        return
+    status = GomokuStatus.HostWon if str(uid) == str(guest) else GomokuStatus.GuestWon
+    gc = get_gomoku_collection()
+    ugc = get_user_gomoku_collection()
+    gc.find_one_and_update({
+        '_id': g['_id']
+    }, {
+        '$set': {'status': int(status)}
+    })
+    ugc.find_one_and_update({
+        'userid': host
+    }, {
+        '$set': {'current_game': None}
+    })
+    ugc.find_one_and_update({
+        'userid': guest
+    }, {
+        '$set': {'current_game': None}
+    })
+    win = get_user_by_id(host if status == GomokuStatus.HostWon else guest)
+    return win['username']
