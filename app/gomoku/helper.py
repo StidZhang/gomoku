@@ -118,8 +118,10 @@ def create_game(uid, config):
     if u is None:
         raise Exception()
 
-    c = config.get('config', {})
-    c['size'] = size
+    c = {
+        'rule': config.get('rule', ''),
+        'size': size
+    }
 
     gomoku = get_gomoku_collection()
     g = {

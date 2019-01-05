@@ -59,7 +59,8 @@ class GomokuSocket(Namespace):
         ss = get_user_session(guest['_id'])
         for s in ss:
             self.emit('gomoku_invite', {
-                'host': current_user.username
+                'host': current_user.username,
+                'gameid': gid
             }, room=s)
 
     @auth_only
@@ -88,5 +89,5 @@ class GomokuSocket(Namespace):
             pass
 
     @auth_only
-    def on_gomoku_move(self):
+    def on_gomoku_move(self, move):
         g = get_game_by_id(gid)
