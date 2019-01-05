@@ -5,22 +5,35 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    username: ""
+    username: "",
+    gid: ""
   },
   mutations: {
-    set(state, username) {
+    setUsername(state, username) {
       state.username = username
     },
-    reset(state) {
+    resetUsername(state) {
       state.username = ""
+    },
+    setGid(state, gid) {
+      state.gid = gid
+    },
+    resetGid(state) {
+      state.gid = ""
     }
   },
   actions: {
-    set({ commit }, username) {
-      commit('set', username)
+    setUsername({ commit }, username) {
+      commit('setUsername', username)
     },
-    reset({ commit }) {
-      commit('reset')
+    resetUsername({ commit }) {
+      commit('resetUsername')
+    },
+    setGid({ commit }, gid) {
+      commit('setGid', gid)
+    },
+    resetGid({ commit }) {
+      commit('resetGid')
     }
   }
 })

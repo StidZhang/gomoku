@@ -52,6 +52,7 @@ export default {
               if (data.status == -1) {
                 this.$message.error(data.message);
               } else {
+                this.$store.dispatch('setUsername', data.username)
                 this.$router.push('/gomoku')
               }
             })
