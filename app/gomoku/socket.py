@@ -79,11 +79,14 @@ class GomokuSocket(Namespace):
     @auth_only
     def on_gomoku_fail(self, gid):
         g = get_game_by_id(gid)
-        hostid = g['game_host']
-        ss = get_user_session(hostid)
-        for s in ss:
-            self.emit('gomoku_invite_failed', room=s)
+        if g['status'] == GomokuStatus.New:
+            hostid = g['game_host']
+            ss = get_user_session(hostid)
+            for s in ss:
+                self.emit('gomoku_invite_failed', room=s)
+        else:
+            pass
 
     @auth_only
     def on_gomoku_move(self):
-        pass
+        g = get_game_by_id(gid)
