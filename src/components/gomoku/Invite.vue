@@ -1,5 +1,8 @@
 <template>
 <div class="invite-box">
+  <div class="welcome-message">
+    <h2>Hello, {{ $store.state.username }}!</h2>
+  </div>
   <a-form :form="form" @submit='handleSubmit' class="invite-form">
     <a-row>
       <a-col :span="18">
@@ -50,6 +53,6 @@ export default {
 .invite-box {
   width: 40%;
   text-align: center;
-  margin: auto
+  margin: auto;
 }
 </style>

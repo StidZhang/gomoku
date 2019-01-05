@@ -1,7 +1,12 @@
 <template>
 <div class="gomoku">
-  <InviteBox/>
-  <a-button type='primary' @click="logout()">
+  <div v-if="$store.state.gid">
+    <PlayBoard></PlayBoard>
+  </div>
+  <div v-else>
+    <InviteBox></InviteBox>
+  </div>
+  <a-button type="primary" @click="logout()">
     Logout
   </a-button>
 </div>
@@ -10,6 +15,8 @@
 <script>
 import axios from 'axios'
 import InviteBox from '@/components/gomoku/Invite'
+import PlayBoard from '@/components/gomoku/Play'
+
 export default {
   mounted() {
     // Reconnect socket
@@ -17,19 +24,22 @@ export default {
     this.$socket.connect()
   },
   components: {
-    InviteBox
+    InviteBox,
+    PlayBoard
   },
   sockets: {
     gomoku_status(data) {
-      console.log("Reply for connected")
+      // Set current game id
+      this.$store.dispatch("setGid", data.current_game)
     },
     // Guest Related
     gomoku_invite(data) {
-      this.$message.success(data)
       const key = `open${Date.now()}`;
+      console.log(data)
       this.$notification.open({
-        message: 'You have been invited to a game',
-        description: data,
+        message: "You have been invited to a game!",
+        description: "Host " + data.host + " invited you to a game!",
+        duration: 0,
         btn: (h) => {
           return h('a-button', {
             props: {
@@ -38,6 +48,7 @@ export default {
             },
             on: {
               click: () => {
+                this.joinGame(data.gameid)
                 this.$notification.close(key)
               }
             }
@@ -45,16 +56,18 @@ export default {
         },
         key,
         onClose: () => {
+          this.rejectGame(data.gameid)
           this.$notification.close(key)
         },
       });
     },
     // Host Related
     gomoku_invite_success(data) {
-      this.$message.success(data)
+      this.$message.success("Guest has accepted your invite!")
+      this.$store.dispatch("setGid", data.gameid)
     },
     gomoku_invite_failed(data) {
-      this.$message.success(data)
+      this.$message.warning("Guest has rejected your invite!")
     },
     // Joining a game and get the board data
     gomoku_board(data) {
@@ -66,28 +79,23 @@ export default {
     },
     // Game ended
     gomoku_end(data) {
-      console.log(data)
+      console.log("End event")
     }
   },
   methods: {
-    createGame() {
-      var gameConfig = {
-        size: 13,
-        invite: "abcd"
-      }
-      this.$socket.emit("gomoku_create", gameConfig)
+    joinGame(gameid) {
+      this.$socket.emit("gomoku_join", gameid)
+      this.$store.dispatch("setGid", gameid)
     },
-    joinGame() {
-      this.$socket.emit("gomoku_join")
-    },
-    rejectGame() {
-      this.$socket.emit("gomoku_reject")
+    rejectGame(gameid) {
+      this.$socket.emit("gomoku_fail", gameid)
     },
     // For logout button
     logout() {
       axios.post('/api/logout')
         .then((response) => {
           this.$store.dispatch("resetUsername")
+          this.$store.dispatch("resetGid")
           this.$router.push('/')
         })
         .catch((error) => {
