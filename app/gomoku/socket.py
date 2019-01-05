@@ -13,6 +13,9 @@ from .helper import (
 from ..user import (
     get_user_by_name
 )
+from .logic import (
+    GomokuLogic, InvalidOperationException
+)
 
 
 def auth_only(f):
@@ -95,4 +98,7 @@ class GomokuSocket(Namespace):
 
     @auth_only
     def on_gomoku_move(self, move):
-        pass
+        try:
+            pass
+        except InvalidOperationException as e:
+            pass
