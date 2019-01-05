@@ -79,7 +79,7 @@ def session_connected(uid, sid):
     ugc.find_one_and_update({
         '_id': ugid
     }, {
-        '$addToSet': sid
+        '$addToSet': {'session': sid}
     })
 
 
@@ -89,7 +89,7 @@ def session_disconnected(uid, sid):
     ugc.find_one_and_update({
         '_id': ugid
     }, {
-        '$pull': sid
+        '$pull': {'session': sid}
     })
 
 
