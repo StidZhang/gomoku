@@ -102,7 +102,10 @@ def get_game_status(uid):
     ug = get_user_gomoku_by_uid(uid)
     current_game = ug.get('current_game', None) if ug is not None else None
     invites = get_gomoku_invite(uid)
-    return {'current_game': current_game, 'invites': invites}
+    return {
+        'current_game': str(current_game),
+        'invites': invites
+    }
 
 
 def create_game(uid, config):
