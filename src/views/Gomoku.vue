@@ -1,15 +1,6 @@
 <template>
 <div class="gomoku">
-  <a-input placeholder="Basic usage" />
-  <a-button type='primary' @click="createGame()">
-    Create a game
-  </a-button>
-  <a-button type='primary' @click="joinGame()">
-    Join game
-  </a-button>
-  <a-button type='primary' @click="rejectGame()">
-    Reject game
-  </a-button>
+  <InviteBox/>
   <a-button type='primary' @click="logout()">
     Logout
   </a-button>
@@ -18,11 +9,15 @@
 
 <script>
 import axios from 'axios'
+import InviteBox from '@/components/gomoku/Invite'
 export default {
   mounted() {
     // Reconnect socket
     this.$socket.disconnect()
     this.$socket.connect()
+  },
+  components: {
+    InviteBox
   },
   sockets: {
     gomoku_status(data) {
