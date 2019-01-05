@@ -1,11 +1,17 @@
 import functools
+from flask import request
 from flask_login import current_user
 from flask_socketio import (
     Namespace, disconnect, join_room, leave_room
 )
 from ..db import close_db
 from .helper import (
-    get_game_status, create_game, join_game, get_gomoku_status
+    get_game_status, create_game, join_game, get_gomoku_status,
+    session_connected, session_disconnected, get_user_session,
+    GomokuStatus, get_game_by_id
+)
+from ..user import (
+    get_user_by_name
 )
 
 
@@ -37,25 +43,46 @@ class GomokuSocket(Namespace):
     def on_connect(self):
         status = get_game_status(current_user.get_id())
         self.emit('gomoku_status', status)
+        session_connected(current_user.get_id(), request.sid)
 
     @nonauth
     def on_disconnect(self):
-        pass
+        if current_user.is_authenticated:
+            session_connected(current_user.get_id(), request.sid)
 
     @auth_only
     def on_gomoku_create(self, config):
         gid = create_game(current_user.get_id(), config)
         join_room(gid)
 
+        guest = get_user_by_name(config['invite'])
+        ss = get_user_session(guest['_id'])
+        for s in ss:
+            self.emit('gomoku_invite', {
+                'host': current_user.username
+            }, room=s)
+
     @auth_only
     def on_gomoku_join(self, gid):
-        join_game(current_user.get_id(), gid)
+        g = join_game(current_user.get_id(), gid)
+        if g['status'] == GomokuStatus.New:
+            hostid = g['game_host']
+            ss = get_user_session(hostid)
+            for s in ss:
+                self.emit('gomoku_invite_success', {
+                    'gameid': gid
+                }, room=s)
+
         join_room(gid)
         self.emit('gomoku_board', get_gomoku_status(gid))
 
     @auth_only
     def on_gomoku_fail(self, gid):
-        pass
+        g = get_game_by_id(gid)
+        hostid = g['game_host']
+        ss = get_user_session(hostid)
+        for s in ss:
+            self.emit('gomoku_invite_failed', room=s)
 
     @auth_only
     def on_gomoku_move(self):
