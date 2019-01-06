@@ -31,35 +31,13 @@ export default {
     gomoku_status(data) {
       // Set current game id
       this.$store.dispatch("setGid", data.current_game)
+      for (let i = 0; i < data.invites.length; i++) {
+        setTimeout(() => this.displayNotification(data.invites[i]), i*50)
+      }
     },
     // Guest Related
     gomoku_invite(data) {
-      const key = `open${Date.now()}`;
-      console.log(data)
-      this.$notification.open({
-        message: "You have been invited to a game!",
-        description: "Host " + data.host + " invited you to a game!",
-        duration: 0,
-        btn: (h) => {
-          return h('a-button', {
-            props: {
-              type: 'primary',
-              size: 'small',
-            },
-            on: {
-              click: () => {
-                this.joinGame(data.gameid)
-                this.$notification.close(key)
-              }
-            }
-          }, 'Join')
-        },
-        key,
-        onClose: () => {
-          this.rejectGame(data.gameid)
-          this.$notification.close(key)
-        },
-      });
+      this.displayNotification(data.gameid)
     },
     // Host Related
     gomoku_invite_success(data) {
@@ -79,7 +57,12 @@ export default {
     },
     // Game ended
     gomoku_end(data) {
-      console.log("End event")
+      if (data.win == this.$store.state.username) {
+        this.$message.success("You win!")
+      } else {
+        this.$message.success("You Lost!")
+      }
+      this.$store.dispatch("resetGid")
     }
   },
   methods: {
@@ -101,6 +84,33 @@ export default {
         .catch((error) => {
           this.$message.error(error)
         })
+    },
+    displayNotification(gameid) {
+      const key = `open${Date.now()}`
+      this.$notification.open({
+        message: "You have been invited to a game!",
+        description: "A host has invited you to a game!",
+        duration: 0,
+        btn: (h) => {
+          return h('a-button', {
+            props: {
+              type: 'primary',
+              size: 'small',
+            },
+            on: {
+              click: () => {
+                this.joinGame(gameid)
+                this.$notification.close(key)
+              }
+            }
+          }, 'Join')
+        },
+        key,
+        onClose: () => {
+          this.rejectGame(gameid)
+          this.$notification.close(key)
+        },
+      });
     }
   }
 }
