@@ -1,9 +1,19 @@
 <template>
-  <div class="playboard">
-    <Board></Board>
-    <InfoBox></InfoBox>
-    <SurrenderButton></SurrenderButton>
-  </div>
+<div class="playboard">
+  <a-row>
+    <a-col :span="18">
+      <Board></Board>
+    </a-col>
+    <a-col :span="6">
+      <a-row>
+        <InfoBox></InfoBox>
+      </a-row>
+      <a-row>
+        <SurrenderButton></SurrenderButton>
+      </a-row>
+    </a-col>
+  </a-row>
+</div>
 </template>
 
 <script>
@@ -18,7 +28,6 @@ export default {
     SurrenderButton
   }
 }
-
 </script>
 
 <style>
