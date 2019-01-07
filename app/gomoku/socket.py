@@ -58,6 +58,7 @@ class GomokuSocket(Namespace):
         gid = create_game(current_user.get_id(), config)
         join_room(gid)
 
+        # send invite to guest
         guest = get_user_by_name(config['invite'])
         ss = get_user_session(guest['_id'])
         for s in ss:
@@ -65,6 +66,10 @@ class GomokuSocket(Namespace):
                 'host': current_user.username,
                 'gameid': gid
             }, room=s)
+
+        # send status to host
+        status = get_game_status(current_user.get_id())
+        self.emit('gomoku_status', status, room=request.sid)
 
     @auth_only
     def on_gomoku_join(self, gid):
