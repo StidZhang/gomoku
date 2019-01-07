@@ -1,7 +1,12 @@
 from enum import IntEnum
+from datetime import datetime
+from bson import ObjectId
 from .helper import (
-    get_game_by_id, get_gomoku_collection, GomokuStatus
+    get_game_by_id, get_gomoku_collection, GomokuStatus,
+    get_user_gomoku_by_uid, get_user_gomoku_collection,
+    remove_current_game
 )
+from ..user import get_user_by_id
 
 
 class GomokuColor(IntEnum):
@@ -19,12 +24,16 @@ class InvalidOperationException(Exception):
 
 
 class GomokuLogic(object):
-    def __init__(self, uid, gid):
-        g = get_game_by_id(gid)
+    def __init__(self, uid):
+        ug = get_user_gomoku_by_uid(uid)
+        if ug['current_game'] is None:
+            raise InvalidOperationException()
+        g = get_game_by_id(ug['current_game'])
         if g is None:
             raise InvalidOperationException()
         self.g = g
         self.uid = uid
+        self.gid = str(g['_id'])
         self.config = g.get('config')
         self.host = g.get('game_host')
         self.guest = g.get('game_guest')
@@ -98,10 +107,39 @@ class GomokuLogic(object):
             raise InvalidOperationException('position occupied')
 
         self.board[pos] = color
-        if self.check_win(x, y, color):
-            pass
-        else:
-            pass
+        is_won = self.check_win(x, y, color)
+        status = GomokuStatus.Guest if str(self.host) == str(self.uid) else GomokuStatus.Host
+        if is_won:
+            status = GomokuStatus.HostWon if str(self.host) == str(self.uid) else GomokuStatus.GuestWon
+
+        gc = get_gomoku_collection()
+        gc.find_one_and_update({
+            '_id': self.g['_id']
+        }, {
+            '$push': {'history': {
+                'user': ObjectId(self.uid),
+                'time': datetime.utcnow(),
+                'move': {
+                    'x': x,
+                    'y': y
+                }
+            }},
+            '$set': {
+                'board': self.board,
+                'status': int(status)
+            }
+        })
+        if is_won:
+            remove_current_game(self.host)
+            remove_current_game(self.guest)
+
+        u = get_user_by_id(self.uid)
+        return {
+            'x': x,
+            'y': y,
+            'username': u['username'],
+            'won': is_won
+        }
 
     def move(self, m):
         if self.rule == 'swap2':

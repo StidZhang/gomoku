@@ -78,7 +78,7 @@ class GomokuSocket(Namespace):
                 }, room=s)
 
         join_room(gid)
-        self.emit('gomoku_board', get_gomoku_status(gid))
+        self.emit('gomoku_board', get_gomoku_status(gid), room=request.sid)
 
     @auth_only
     def on_gomoku_fail(self, gid):
@@ -86,7 +86,7 @@ class GomokuSocket(Namespace):
         if g['status'] == GomokuStatus.New:
             cancel_game(current_user.get_id(), g)
             hostid = g['game_host']
-            if current_user.get_id() == str(hostid):
+            if current_user.get_id() != str(hostid):
                 ss = get_user_session(hostid)
                 for s in ss:
                     self.emit('gomoku_invite_failed', room=s)
@@ -99,6 +99,12 @@ class GomokuSocket(Namespace):
     @auth_only
     def on_gomoku_move(self, move):
         try:
-            pass
-        except InvalidOperationException as e:
+            g = GomokuLogic(current_user.get_id())
+            data = g.move(move)
+            self.emit('gomoku_board_update', data, room=g.gid)
+            if data['won']:
+                self.emit('gomoku_end', {
+                    'win': data['username']
+                }, room=g.gid)
+        except InvalidOperationException:
             pass
