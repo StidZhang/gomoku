@@ -1,1 +1,1 @@
-web: gunicorn -b :$PORT --worker-class eventlet "app:create_app()"
+web: gunicorn -b :$PORT --worker-class eventlet --no-sendfile "app:create_app()"
