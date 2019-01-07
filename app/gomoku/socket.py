@@ -86,7 +86,7 @@ class GomokuSocket(Namespace):
         if g['status'] == GomokuStatus.New:
             cancel_game(current_user.get_id(), g)
             hostid = g['game_host']
-            if current_user.get_id() == str(hostid):
+            if current_user.get_id() != str(hostid):
                 ss = get_user_session(hostid)
                 for s in ss:
                     self.emit('gomoku_invite_failed', room=s)
