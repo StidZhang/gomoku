@@ -102,5 +102,9 @@ class GomokuSocket(Namespace):
             g = GomokuLogic(current_user.get_id())
             data = g.move(move)
             self.emit('gomoku_board_update', data, room=g.gid)
+            if data['won']:
+                self.emit('gomoku_end', {
+                    'win': data['username']
+                }, room=g.gid)
         except InvalidOperationException:
             pass
