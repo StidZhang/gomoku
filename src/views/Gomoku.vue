@@ -1,65 +1,50 @@
 <template>
 <div class="gomoku">
-  <a-input placeholder="Basic usage" />
-  <a-button type='primary' @click="createGame()">
-    Create a game
-  </a-button>
-  <a-button type='primary' @click="joinGame()">
-    Join game
-  </a-button>
-  <a-button type='primary' @click="rejectGame()">
-    Reject game
-  </a-button>
-  <a-button type='primary' @click="logout()">
-    Logout
-  </a-button>
+  <div v-if="$store.state.gid">
+    <PlayBoard></PlayBoard>
+  </div>
+  <div v-else>
+    <InviteBox></InviteBox>
+  </div>
+  <LogoutButton></LogoutButton>
 </div>
 </template>
 
 <script>
-import axios from 'axios'
+import InviteBox from '@/components/gomoku/Invite'
+import PlayBoard from '@/components/gomoku/Play'
+import LogoutButton from '@/components/auth/Logout'
+
 export default {
   mounted() {
     // Reconnect socket
     this.$socket.disconnect()
     this.$socket.connect()
   },
+  components: {
+    InviteBox,
+    PlayBoard,
+    LogoutButton
+  },
   sockets: {
     gomoku_status(data) {
-      console.log("Reply for connected")
+      // Set current game id
+      this.$store.dispatch("setGid", data.current_game)
+      for (let i = 0; i < data.invites.length; i++) {
+        setTimeout(() => this.displayNotification(data.invites[i]), i*50)
+      }
     },
     // Guest Related
     gomoku_invite(data) {
-      this.$message.success(data)
-      const key = `open${Date.now()}`;
-      this.$notification.open({
-        message: 'You have been invited to a game',
-        description: data,
-        btn: (h) => {
-          return h('a-button', {
-            props: {
-              type: 'primary',
-              size: 'small',
-            },
-            on: {
-              click: () => {
-                this.$notification.close(key)
-              }
-            }
-          }, 'Join')
-        },
-        key,
-        onClose: () => {
-          this.$notification.close(key)
-        },
-      });
+      this.displayNotification(data.gameid)
     },
     // Host Related
     gomoku_invite_success(data) {
-      this.$message.success(data)
+      this.$message.success("Guest has accepted your invite!")
+      this.$store.dispatch("setGid", data.gameid)
     },
     gomoku_invite_failed(data) {
-      this.$message.success(data)
+      this.$message.warning("Guest has rejected your invite!")
     },
     // Joining a game and get the board data
     gomoku_board(data) {
@@ -71,33 +56,48 @@ export default {
     },
     // Game ended
     gomoku_end(data) {
-      console.log(data)
+      if (data.win == this.$store.state.username) {
+        this.$message.success("You win!")
+      } else {
+        this.$message.success("You Lost!")
+      }
+      this.$store.dispatch("resetGid")
     }
   },
   methods: {
-    createGame() {
-      var gameConfig = {
-        size: 13,
-        invite: "abcd"
-      }
-      this.$socket.emit("gomoku_create", gameConfig)
+    joinGame(gameid) {
+      this.$socket.emit("gomoku_join", gameid)
+      this.$store.dispatch("setGid", gameid)
     },
-    joinGame() {
-      this.$socket.emit("gomoku_join")
+    rejectGame(gameid) {
+      this.$socket.emit("gomoku_fail", gameid)
     },
-    rejectGame() {
-      this.$socket.emit("gomoku_reject")
-    },
-    // For logout button
-    logout() {
-      axios.post('/api/logout')
-        .then((response) => {
-          this.$store.dispatch("resetUsername")
-          this.$router.push('/')
-        })
-        .catch((error) => {
-          this.$message.error(error)
-        })
+    displayNotification(gameid) {
+      const key = `open${Date.now()}`
+      this.$notification.open({
+        message: "You have been invited to a game!",
+        description: "A host has invited you to a game!",
+        duration: 0,
+        btn: (h) => {
+          return h('a-button', {
+            props: {
+              type: 'primary',
+              size: 'small',
+            },
+            on: {
+              click: () => {
+                this.joinGame(gameid)
+                this.$notification.close(key)
+              }
+            }
+          }, 'Join')
+        },
+        key,
+        onClose: () => {
+          this.rejectGame(gameid)
+          this.$notification.close(key)
+        },
+      });
     }
   }
 }
