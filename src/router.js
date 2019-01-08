@@ -2,8 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home.vue'
 import Gomoku from '@/views/Gomoku.vue'
-import Login from '@/components/auth/Login.vue'
-import Register from '@/components/auth/Register.vue'
+import Login from '@/views/Login.vue'
+import Register from '@/views/Register.vue'
 import store from './store.js';
 import axios from 'axios'
 

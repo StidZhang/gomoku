@@ -6,16 +6,14 @@
   <div v-else>
     <InviteBox></InviteBox>
   </div>
-  <a-button type="primary" @click="logout()">
-    Logout
-  </a-button>
+  <LogoutButton></LogoutButton>
 </div>
 </template>
 
 <script>
-import axios from 'axios'
 import InviteBox from '@/components/gomoku/Invite'
 import PlayBoard from '@/components/gomoku/Play'
+import LogoutButton from '@/components/auth/Logout'
 
 export default {
   mounted() {
@@ -25,7 +23,8 @@ export default {
   },
   components: {
     InviteBox,
-    PlayBoard
+    PlayBoard,
+    LogoutButton
   },
   sockets: {
     gomoku_status(data) {
@@ -72,18 +71,6 @@ export default {
     },
     rejectGame(gameid) {
       this.$socket.emit("gomoku_fail", gameid)
-    },
-    // For logout button
-    logout() {
-      axios.post('/api/logout')
-        .then((response) => {
-          this.$store.dispatch("resetUsername")
-          this.$store.dispatch("resetGid")
-          this.$router.push('/')
-        })
-        .catch((error) => {
-          this.$message.error(error)
-        })
     },
     displayNotification(gameid) {
       const key = `open${Date.now()}`
