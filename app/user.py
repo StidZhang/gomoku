@@ -22,6 +22,18 @@ def get_user_by_id(id):
     return user.find_one({"_id": oid})
 
 
+def get_users_by_ids(ids):
+    s = set(ids)
+    user = get_user_collection()
+    q = user.find({
+        '_id': {'$in': [t for t in s]},
+    }, {
+        '_id': True,
+        'username': True,
+    })
+    return {x['_id']: x['username'] for x in q }
+
+
 def create_user(username, password):
     u = {
         "username": username,

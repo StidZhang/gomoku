@@ -1,6 +1,6 @@
 from bson import ObjectId
 from ..db import get_db
-from ..user import get_user_by_id, get_user_by_name
+from ..user import get_user_by_id, get_user_by_name, get_users_by_ids
 from enum import IntEnum
 
 
@@ -44,8 +44,15 @@ def get_gomoku_invite(id):
         'game_guest': oid,
     }, {
         '_id': True,
+        'game_host': True,
     })
-    return [str(e['_id']) for e in q]
+    ret = [e for e in q]
+    userids = [e['game_host'] for e in ret]
+    u = get_users_by_ids(userids)
+    return [{
+        'host': userids[x['game_host']],
+        'gameid': x['_id'],
+    } for x in ret]
 
 
 def get_user_gomoku_id(uid):
