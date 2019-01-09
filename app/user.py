@@ -31,7 +31,7 @@ def get_users_by_ids(ids):
         '_id': True,
         'username': True,
     })
-    return {x['_id']: x['username'] for x in q }
+    return {str(x['_id']): x['username'] for x in q }
 
 
 def create_user(username, password):

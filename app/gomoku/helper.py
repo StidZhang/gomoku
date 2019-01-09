@@ -50,8 +50,8 @@ def get_gomoku_invite(id):
     userids = [e['game_host'] for e in ret]
     u = get_users_by_ids(userids)
     return [{
-        'host': userids[x['game_host']],
-        'gameid': x['_id'],
+        'host': u[str(x['game_host'])],
+        'gameid': str(x['_id']),
     } for x in ret]
 
 
