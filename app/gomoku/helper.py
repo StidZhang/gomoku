@@ -105,13 +105,14 @@ def get_user_session(uid):
     return ug.get('session') if ug is not None else None
 
 
-def get_game_status(uid):
+def get_game_status(uid, message=None):
     ug = get_user_gomoku_by_uid(uid)
     current_game = ug.get('current_game', None) if ug is not None else None
     invites = get_gomoku_invite(uid)
     return {
         'current_game': str(current_game) if current_game is not None else None,
-        'invites': invites
+        'invites': invites,
+        'message': message,
     }
 
 

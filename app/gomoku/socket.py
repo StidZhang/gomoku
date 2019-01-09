@@ -74,13 +74,26 @@ class GomokuSocket(Namespace):
     @auth_only
     def on_gomoku_join(self, gid):
         g = join_game(current_user.get_id(), gid)
-        if g['status'] == GomokuStatus.New:
+        status = g['status']
+        if status == GomokuStatus.New:
             hostid = g['game_host']
             ss = get_user_session(hostid)
             for s in ss:
                 self.emit('gomoku_invite_success', {
                     'gameid': gid
                 }, room=s)
+
+        if status == GomokuStatus.Host or status == GomokuStatus.Guest:
+            self.emit('gomoku_status',
+                get_game_status(current_user.get_id()),
+                room=request.sid
+            )
+        else:
+            self.emit('gomoku_status',
+                get_game_status(current_user.get_id(),
+                    'game have been cancelled by host'),
+                room=request.sid
+            )
 
         join_room(gid)
         self.emit('gomoku_board', get_gomoku_status(gid), room=request.sid)
