@@ -18,20 +18,20 @@
 
 ## SocketIO
 
-| direction | event                 | comment                      |
-| --------- | --------------------- | ---------------------------- |
-| c -> s    | connected             | check current_game / invite  |
-| c -> s    | gomoku_create         | create a game                |
-| c -> s    | gomoku_join           | join a game                  |
-| c -> s    | gomoku_fail           | fail a game                  |
-| c -> s    | gomoku_move           | a move                       |
-| s -> c    | gomoku_status         | reply for connected          |
-| s -> c    | gomoku_invite         | to another c for create game |
-| s -> c    | gomoku_invite_success | to host for success invite   |
-| s -> c    | gomoku_invite_failed  | to host for failed invite    |
-| s -> c    | gomoku_board          | to both for a join           |
-| s -> c    | gomoku_board_update   | to another c for move        |
-| s -> c    | gomoku_end            | to both for game end / fail  |
+| direction | event               | comment                      |
+| --------- | ------------------- | ---------------------------- |
+| c -> s    | connected           | check current_game / invite  |
+| c -> s    | gomoku_create       | create a game                |
+| c -> s    | gomoku_join         | join a game                  |
+| c -> s    | gomoku_fail         | fail a game                  |
+| c -> s    | gomoku_move         | a move                       |
+| s -> c    | gomoku_status       | reply for connected          |
+| s -> c    | gomoku_invite       | to another c for create game |
+| s -> c    | gomoku_board        | to both for a join           |
+| s -> c    | gomoku_board_update | to another c for move        |
+| s -> c    | gomoku_end          | to both for game end / fail  |
+
+gomoku_status may contains message to indicate a failure of a action.
 
 # CSS
 
@@ -81,13 +81,12 @@ User ..
 
 ## User_Gomoku
 
-| field        | type                    |
-| ------------ | ----------------------- |
-| userid       | userid                  |
-| current_game | gameid                  |
-| session      | list of current session |
-| total_won    | int                     |
-| total_game   | int                     |
+| field        | type   |
+| ------------ | ------ |
+| userid       | userid |
+| current_game | gameid |
+| total_won    | int    |
+| total_game   | int    |
 
 ## Gomoku
 
