@@ -2,17 +2,12 @@ from enum import IntEnum
 from datetime import datetime
 from bson import ObjectId
 from .helper import (
-    get_game_by_id, get_gomoku_collection, GomokuStatus,
+    get_game_by_id, get_gomoku_collection,
     get_user_gomoku_by_uid, get_user_gomoku_collection,
-    remove_current_game
+    reset_user_current_game
 )
+from .model import GomokuStatus, GomokuColor
 from ..user import get_user_by_id
-
-
-class GomokuColor(IntEnum):
-    Empty = 0
-    Black = 1
-    White = 2
 
 
 class InvalidOperationException(Exception):
@@ -130,8 +125,8 @@ class GomokuLogic(object):
             }
         })
         if is_won:
-            remove_current_game(self.host)
-            remove_current_game(self.guest)
+            reset_user_current_game(self.host)
+            reset_user_current_game(self.guest)
 
         u = get_user_by_id(self.uid)
         return {
