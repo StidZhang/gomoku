@@ -29,14 +29,20 @@ export default {
   sockets: {
     gomoku_status(data) {
       // Set current game id
+
+      if (data.message) {
+        this.$message.info(data.message)
+      }
+
       this.$store.dispatch("setGid", data.current_game)
+
       for (let i = 0; i < data.invites.length; i++) {
-        setTimeout(() => this.displayNotification(data.invites[i]), i*50)
+        this.$nextTick(() => this.displayNotification(data.invites[i]))
       }
     },
     // Guest Related
     gomoku_invite(data) {
-      this.displayNotification(data.gameid)
+      this.displayNotification(data)
     },
     // Host Related
     gomoku_invite_success(data) {
@@ -45,6 +51,7 @@ export default {
     },
     gomoku_invite_failed(data) {
       this.$message.warning("Guest has rejected your invite!")
+      this.$store.dispatch("resetGid")
     },
     // Joining a game and get the board data
     gomoku_board(data) {
@@ -72,11 +79,13 @@ export default {
     rejectGame(gameid) {
       this.$socket.emit("gomoku_fail", gameid)
     },
-    displayNotification(gameid) {
+    displayNotification(inviteInfo) {
+      var gameid = inviteInfo.gameid
+      var hostname = inviteInfo.host
       const key = `open${Date.now()}`
       this.$notification.open({
         message: "You have been invited to a game!",
-        description: "A host has invited you to a game!",
+        description: "Host " + hostname + " has invited you to a game!",
         duration: 0,
         btn: (h) => {
           return h('a-button', {
