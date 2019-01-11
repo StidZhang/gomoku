@@ -6,10 +6,12 @@ from flask_socketio import (
 )
 from ..db import close_db
 from .helper import (
-    get_game_status, create_game, join_game, get_gomoku_status,
-    session_connected, session_disconnected, get_user_session,
-    GomokuStatus, get_game_by_id, surrender, cancel_game
+    get_game_status, create_game, join_game, get_board_status, fail_game
 )
+from .db_helper import (
+    get_game_by_id
+)
+from .model import GomokuStatus
 from ..user import (
     get_user_by_name
 )
@@ -42,87 +44,90 @@ def nonauth(f):
 
 
 class GomokuSocket(Namespace):
+    def emit_to_user(self, uid, message, data):
+        self.emit(message, data, room=str(uid))
+
+    def emit_to_game(self, gid, message, data):
+        self.emit(message, data, room=str(gid))
+
+    def emit_back(self, message, data):
+        self.emit(message, data, room=request.sid)
+
     @auth_only
     def on_connect(self):
-        status = get_game_status(current_user.get_id())
-        self.emit('gomoku_status', status, room=request.sid)
-        session_connected(current_user.get_id(), request.sid)
+        self.emit_back('gomoku_status', get_game_status(current_user.get_id()))
+        join_room(current_user.get_id())
 
     @nonauth
     def on_disconnect(self):
-        if current_user.is_authenticated:
-            session_disconnected(current_user.get_id(), request.sid)
+        pass
 
     @auth_only
     def on_gomoku_create(self, config):
-        gid = create_game(current_user.get_id(), config)
-        join_room(gid)
+        try:
+            gid = create_game(current_user.get_id(), config)
+            join_room(gid)
 
-        # send invite to guest
-        guest = get_user_by_name(config['invite'])
-        ss = get_user_session(guest['_id'])
-        for s in ss:
-            self.emit('gomoku_invite', {
+            # send invite to guest
+            guest = get_user_by_name(config['invite'])
+            self.emit_to_user(guest['_id'], 'gomoku_invite', {
                 'host': current_user.username,
                 'gameid': gid
-            }, room=s)
-
-        # send status to host
-        status = get_game_status(current_user.get_id())
-        self.emit('gomoku_status', status, room=request.sid)
+            })
+            # send status to host
+            self.emit_to_user(
+                current_user.get_id(),
+                'gomoku_status',
+                get_game_status(current_user.get_id())
+            )
+        except Exception as e:
+            self.emit_back(
+                'gomoku_status',
+                get_game_status(current_user.get_id(), str(e), 40)
+            )
 
     @auth_only
     def on_gomoku_join(self, gid):
-        g = join_game(current_user.get_id(), gid)
-        status = g['status']
-        if status == GomokuStatus.New:
-            hostid = g['game_host']
-            ss = get_user_session(hostid)
-            for s in ss:
-                self.emit('gomoku_invite_success', {
-                    'gameid': gid
-                }, room=s)
-
-        if status == GomokuStatus.Host or status == GomokuStatus.Guest:
-            self.emit('gomoku_status',
-                get_game_status(current_user.get_id()),
-                room=request.sid
+        try:
+            if join_game(current_user.get_id(), gid):
+                self.emit_to_game(gid, 'gomoku_board', get_game_status(gid))
+            else:
+                self.emit_back('gomoku_board', get_game_status(gid))
+        except Exception as e:
+            self.emit_back(
+                'gomoku_status',
+                get_game_status(current_user.get_id(), str(e), 40)
             )
-        else:
-            self.emit('gomoku_status',
-                get_game_status(current_user.get_id(),
-                    'game have been cancelled by host'),
-                room=request.sid
-            )
-
-        join_room(gid)
-        self.emit('gomoku_board', get_gomoku_status(gid), room=request.sid)
 
     @auth_only
     def on_gomoku_fail(self, gid):
-        g = get_game_by_id(gid)
-        if g['status'] == GomokuStatus.New:
-            cancel_game(current_user.get_id(), g)
-            hostid = g['game_host']
-            if current_user.get_id() != str(hostid):
-                ss = get_user_session(hostid)
-                for s in ss:
-                    self.emit('gomoku_invite_failed', room=s)
-        else:
-            w = surrender(current_user.get_id(), g)
-            self.emit('gomoku_end', {
-                'win': w
-            }, room=str(g['_id']))
+        try:
+            s, h, g = fail_game(current_user.get_id(), gid)
+            if s == GomokuStatus.HostCancelled:
+                self.emit_to_user(h, 'gomoku_status', get_game_status(h))
+            elif s == GomokuStatus.GuestRefused:
+                self.emit_to_user(h, 'gomoku_status',
+                    get_game_status(h, 'guest cancelled invite', 20))
+            else:
+                w = h if s == GomokuStatus.HostWon else g
+                self.emit_to_game(gid, 'gomoku_end', {
+                    'win': get_user_name(w)
+                })
+        except Exception as e:
+            self.emit_back(
+                'gomoku_status',
+                get_game_status(current_user.get_id(), str(e), 40)
+            )
 
     @auth_only
     def on_gomoku_move(self, move):
         try:
             g = GomokuLogic(current_user.get_id())
             data = g.move(move)
-            self.emit('gomoku_board_update', data, room=g.gid)
+            self.emit_to_game(g.gid, 'gomoku_board_update', data)
             if data['won']:
-                self.emit('gomoku_end', {
+                self.emit_to_game(g.gid, 'gomoku_end', {
                     'win': data['username']
-                }, room=g.gid)
+                })
         except InvalidOperationException:
             pass
