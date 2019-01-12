@@ -2,7 +2,7 @@ from bson import ObjectId
 from .db_helper import (
     get_gomoku_collection, get_user_by_name, get_users_by_ids,
     get_user_gomoku_by_uid, get_user_gomoku_collection,
-    get_game_by_id
+    get_game_by_id, get_user_name
 )
 from .model import GomokuStatus
 
