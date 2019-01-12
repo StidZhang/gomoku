@@ -1,4 +1,5 @@
 import functools
+from logging import getLogger
 from flask import request
 from flask_login import current_user
 from flask_socketio import (
@@ -18,6 +19,9 @@ from ..user import (
 from .logic import (
     GomokuLogic, InvalidOperationException
 )
+
+
+logger = getLogger(__name__)
 
 
 def auth_only(f):
@@ -81,6 +85,7 @@ class GomokuSocket(Namespace):
                 get_game_status(current_user.get_id())
             )
         except Exception as e:
+            logger.exception(e)
             self.emit_back(
                 'gomoku_status',
                 get_game_status(current_user.get_id(), str(e), 40)
@@ -94,6 +99,7 @@ class GomokuSocket(Namespace):
             else:
                 self.emit_back('gomoku_board', get_game_status(gid))
         except Exception as e:
+            logger.exception(e)
             self.emit_back(
                 'gomoku_status',
                 get_game_status(current_user.get_id(), str(e), 40)
@@ -114,6 +120,7 @@ class GomokuSocket(Namespace):
                     'win': get_user_name(w)
                 })
         except Exception as e:
+            logger.exception(e)
             self.emit_back(
                 'gomoku_status',
                 get_game_status(current_user.get_id(), str(e), 40)
