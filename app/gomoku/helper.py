@@ -153,8 +153,7 @@ def fail_game(uid, gid):
     fstatus = GomokuStatus.New
     if status == GomokuStatus.New:
         fstatus = GomokuStatus.HostCancelled if uid == host else GomokuStatus.GuestRefused
-        if fstatus == GomokuStatus.HostCancelled:
-            reset_user_current_game(uid)
+        reset_user_current_game(host)
     elif status == GomokuStatus.Host or status == GomokuStatus.Guest:
         fstatus = GomokuStatus.HostWon if uid == guest else GomokuStatus.GuestWon
         reset_user_current_game(host)

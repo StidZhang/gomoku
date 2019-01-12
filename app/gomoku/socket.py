@@ -95,9 +95,10 @@ class GomokuSocket(Namespace):
     def on_gomoku_join(self, gid):
         try:
             if join_game(current_user.get_id(), gid):
-                self.emit_to_game(gid, 'gomoku_board', get_game_status(gid))
+                join_room(gid)
+                self.emit_to_game(gid, 'gomoku_board', get_board_status(gid))
             else:
-                self.emit_back('gomoku_board', get_game_status(gid))
+                self.emit_back('gomoku_board', get_board_status(gid))
         except Exception as e:
             logger.exception(e)
             self.emit_back(

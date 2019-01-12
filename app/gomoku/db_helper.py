@@ -23,7 +23,7 @@ def get_user_gomoku_by_uid(id):
     ug = ugc.find_one({"userid": ObjectId(id)})
     if ug is None:
         ugc.insert_one({
-            'userid': ObjectId(uid),
+            'userid': ObjectId(id),
             'current_game': None,
             'total_won': 0,
             'total_game': 0,
