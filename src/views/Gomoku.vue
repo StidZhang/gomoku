@@ -26,6 +26,14 @@ export default {
     PlayBoard,
     LogoutButton
   },
+  computed: {
+    currentBoard: function() {
+      return rawBoard
+    }
+  },
+  data: {
+    rawBoard: []
+  },
   sockets: {
     gomoku_status(data) {
       // Set current game id
@@ -33,9 +41,7 @@ export default {
       if (data.message) {
         this.$message.info(data.message)
       }
-
       this.$store.dispatch("setGid", data.current_game)
-
       for (let i = 0; i < data.invites.length; i++) {
         this.$nextTick(() => this.displayNotification(data.invites[i]))
       }
@@ -44,18 +50,10 @@ export default {
     gomoku_invite(data) {
       this.displayNotification(data)
     },
-    // Host Related
-    gomoku_invite_success(data) {
-      this.$message.success("Guest has accepted your invite!")
-      this.$store.dispatch("setGid", data.gameid)
-    },
-    gomoku_invite_failed(data) {
-      this.$message.warning("Guest has rejected your invite!")
-      this.$store.dispatch("resetGid")
-    },
     // Joining a game and get the board data
     gomoku_board(data) {
-      console.log(data)
+      this.$message.success("Game is ready to start!")
+      this.rawBoard = data
     },
     // Game Move data
     gomoku_board_update(data) {
@@ -74,7 +72,6 @@ export default {
   methods: {
     joinGame(gameid) {
       this.$socket.emit("gomoku_join", gameid)
-      this.$store.dispatch("setGid", gameid)
     },
     rejectGame(gameid) {
       this.$socket.emit("gomoku_fail", gameid)
