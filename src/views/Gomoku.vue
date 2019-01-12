@@ -41,7 +41,11 @@ export default {
       if (data.message) {
         this.$message.info(data.message)
       }
-      this.$store.dispatch("setGid", data.current_game)
+      if (data.current_game) {
+        this.joinGame(data.current_game)
+      } else {
+        this.$store.dispatch("resetGid")
+      }
       for (let i = 0; i < data.invites.length; i++) {
         this.$nextTick(() => this.displayNotification(data.invites[i]))
       }
@@ -71,6 +75,7 @@ export default {
   },
   methods: {
     joinGame(gameid) {
+      this.$store.dispatch("setGid", gameid)
       this.$socket.emit("gomoku_join", gameid)
     },
     rejectGame(gameid) {
