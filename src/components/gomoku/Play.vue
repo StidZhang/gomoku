@@ -2,7 +2,7 @@
 <div class="playboard">
   <a-row>
     <a-col :span="18">
-      <Board></Board>
+      <Board :boardSize="13"></Board>
     </a-col>
     <a-col :span="6">
       <a-row>

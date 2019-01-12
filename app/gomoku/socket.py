@@ -10,7 +10,7 @@ from .helper import (
     get_game_status, create_game, join_game, get_board_status, fail_game
 )
 from .db_helper import (
-    get_game_by_id
+    get_game_by_id, get_user_name
 )
 from .model import GomokuStatus
 from ..user import (
