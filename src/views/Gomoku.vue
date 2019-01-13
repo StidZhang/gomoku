@@ -1,7 +1,7 @@
 <template>
 <div class="gomoku">
   <div v-if="$store.state.gid">
-    <PlayBoard :boardInfo="currentBoard"></PlayBoard>
+    <PlayBoard :boardInfo="rawBoard"></PlayBoard>
   </div>
   <div v-else>
     <InviteBox></InviteBox>
@@ -26,24 +26,42 @@ export default {
     PlayBoard,
     LogoutButton
   },
-  computed: {
-    currentBoard: function() {
-      if (this.rawBoard) {
-        var boardSize = 13 // Should come from this.rawBoard.config.boardSize
-        var result = []
-        for (let i = 0; i < boardSize; i++) {
-          var row = this.rawBoard.board.slice(i*boardSize, i*boardSize+boardSize-1)
-          result.push(row)
-        }
-        return result
-      } else {
-        return []
-      }
-    }
-  },
+  // computed: {
+  //   currentBoard: function() {
+  //     if (this.rawBoard) {
+  //       var boardSize = this.boardSize
+  //       var result = []
+  //       for (let i = 0; i < boardSize; i++) {
+  //         var row = this.rawBoard.slice(i*boardSize, i*boardSize+boardSize)
+  //         result.push(row)
+  //       }
+  //       return result
+  //     } else {
+  //       return []
+  //     }
+  //   }
+  // },
+  // watch: {
+  //   rawBoard: {
+  //     handler: function(val, oldVal) {
+  //       var boardSize = this.boardSize
+  //       var result = []
+  //       for (let i = 0; i < boardSize; i++) {
+  //         var row = this.rawBoard.slice(i*boardSize, i*boardSize+boardSize)
+  //         result.push(row)
+  //       }
+  //       this.currentBoard = result
+  //     },
+  //     deep: true
+  //   }
+  // },
   data: function() {
     return {
-      rawBoard: null
+      rawBoard: [],
+      currentBoard: [],
+      gameHost: "",
+      gameGuest: "",
+      boardSize: 13
     }
   },
   sockets: {
@@ -69,11 +87,20 @@ export default {
     // Joining a game and get the board data
     gomoku_board(data) {
       this.$message.success("Game is ready to start!")
-      this.rawBoard = data
+      this.rawBoard = data.board
+      this.gameHost = data.host.username
+      this.gameGuest = data.guest.username
+      this.boardSize = data.config.size
     },
     // Game Move data
     gomoku_board_update(data) {
-      //this.currentBoard[data.x][data.y]
+      if (data.username == this.gameHost) {
+        this.$set(this.rawBoard, data.y*this.boardSize+data.x, 1)
+      } else if (data.username == this.gameGuest) {
+        this.$set(this.rawBoard, data.y*this.boardSize+data.x, 2)
+      } else {
+        console.log(data)
+      }
     },
     // Game ended
     gomoku_end(data) {

@@ -6,9 +6,22 @@
       <rect :width="outSideRectSize" :height="outSideRectSize" x="1" y="1" stroke="#000" stroke-width="0.05" fill="none" />
       <line v-for="i in boardSize" v-bind:x1="2*i + 1" y1="1" v-bind:x2="2*i + 1" :y2="viewBoxSize-1" stroke="#000" stroke-width="0.05" fill="none"></line>
       <line v-for="i in boardSize" x1="1" v-bind:y1="2*i + 1" :x2="viewBoxSize-1" v-bind:y2="2*i + 1" stroke="#000" stroke-width="0.05" fill="none"></line>
-      <template v-for="i in Array.from(Array(boardSize+1).keys())">
+      <!-- <g v-for="(row, i) in currentBoard" :key="i">
+        <g v-for="(value, j) in row" :key="j">
+          <g v-if="value != 0">
+            <circle v-bind:cx="2*j + 1" v-bind:cy="2*i + 1" r="0.9" :fill="getColor(value)">
+          </g>
+        </g>
+      </g> -->
+      <g v-for="(value, i) in boardInfo" :key="i">
+        <g v-if="value != 0">
+          <circle v-bind:cx="getXSvgcoord(i)" v-bind:cy="getYSvgcoord(i)" r="0.9" :fill="getColor(value)">
+        </g>
+      </g>
+      <!-- Hover over effect -->
+      <g v-for="i in Array.from(Array(boardSize+1).keys())">
         <circle class="shadow-stone" v-for="j in Array.from(Array(boardSize+1).keys())" v-bind:cx="2*j + 1" v-bind:cy="2*i + 1" r="0.9"></circle>
-      </template>
+      </g>
     </g>
   </svg>
 </div>
@@ -22,10 +35,10 @@ export default {
   },
   computed: {
     viewBoxSize() {
-      return 2 + this.boardSize * 2
+      return this.boardSize * 2
     },
     outSideRectSize() {
-      return this.boardSize * 2
+      return this.boardSize * 2 -2
     },
     viewBoxInfo() {
       return "0 0 " + this.viewBoxSize.toString() + " " + this.viewBoxSize.toString()
@@ -43,15 +56,14 @@ export default {
       var xSvgCoord = this.convertCoord(cursorpt.x)
       var ySvgCoord = this.convertCoord(cursorpt.y)
 
-      //console.log("(" + xSvgCoord + ", " + ySvgCoord + ")")
+      // console.log("(" + xSvgCoord + ", " + ySvgCoord + ")")
 
       // Update the location to server
       var move = {
         x: (xSvgCoord-1) / 2,
         y: (ySvgCoord-1) / 2
       }
-      console.log(move)
-      //this.$socket.emit("gomoku_move", move)
+      this.$socket.emit("gomoku_move", move)
 
     },
     convertCoord(coord) {
@@ -61,6 +73,24 @@ export default {
       } else {
         return lower
       }
+    },
+    getColor(value) {
+      if (value == 1) {
+        return "black"
+      } else if (value == 2) {
+        return "white"
+      } else {
+        // Error position
+        return "red"
+      }
+    },
+    getXSvgcoord(index) {
+      var xCoord = index % this.boardSize
+      return 2*xCoord + 1
+    },
+    getYSvgcoord(index) {
+      var yCoord = Math.floor(index / this.boardSize)
+      return 2*yCoord + 1
     }
   }
 }
