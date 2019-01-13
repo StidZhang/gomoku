@@ -1,7 +1,7 @@
 <template>
 <div class="gomoku">
   <div v-if="$store.state.gid">
-    <PlayBoard></PlayBoard>
+    <PlayBoard :boardInfo="currentBoard"></PlayBoard>
   </div>
   <div v-else>
     <InviteBox></InviteBox>
@@ -28,11 +28,23 @@ export default {
   },
   computed: {
     currentBoard: function() {
-      return rawBoard
+      if (this.rawBoard) {
+        var boardSize = 13 // Should come from this.rawBoard.config.boardSize
+        var result = []
+        for (let i = 0; i < boardSize; i++) {
+          var row = this.rawBoard.board.slice(i*boardSize, i*boardSize+boardSize-1)
+          result.push(row)
+        }
+        return result
+      } else {
+        return []
+      }
     }
   },
-  data: {
-    rawBoard: []
+  data: function() {
+    return {
+      rawBoard: null
+    }
   },
   sockets: {
     gomoku_status(data) {
@@ -61,7 +73,7 @@ export default {
     },
     // Game Move data
     gomoku_board_update(data) {
-      console.log(data)
+      //this.currentBoard[data.x][data.y]
     },
     // Game ended
     gomoku_end(data) {

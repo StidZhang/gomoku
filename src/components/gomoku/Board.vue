@@ -17,7 +17,8 @@
 <script>
 export default {
   props: {
-    'boardSize': Number
+    'boardSize': Number,
+    'boardInfo': Array
   },
   computed: {
     viewBoxSize() {
@@ -39,10 +40,18 @@ export default {
       // The cursor point, translated into svg coordinates
       var cursorpt = pt.matrixTransform(svg.getScreenCTM().inverse())
 
-      var roundedX = convertCoord(cursorpt.x)
-      var roundedY = convertCoord(cursorpt.y)
+      var xSvgCoord = this.convertCoord(cursorpt.x)
+      var ySvgCoord = this.convertCoord(cursorpt.y)
 
-      console.log("(" + roundedX + ", " + roundedY + ")")
+      //console.log("(" + xSvgCoord + ", " + ySvgCoord + ")")
+
+      // Update the location to server
+      var move = {
+        x: (xSvgCoord-1) / 2,
+        y: (ySvgCoord-1) / 2
+      }
+      console.log(move)
+      //this.$socket.emit("gomoku_move", move)
 
     },
     convertCoord(coord) {

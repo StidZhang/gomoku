@@ -2,7 +2,7 @@
 <div class="playboard">
   <a-row>
     <a-col :span="18">
-      <Board :boardSize="13"></Board>
+      <Board :boardSize="13" :boardInfo="boardInfo"></Board>
     </a-col>
     <a-col :span="6">
       <a-row>
@@ -26,6 +26,9 @@ export default {
     Board,
     InfoBox,
     SurrenderButton
+  },
+  props: {
+    "boardInfo": Array
   }
 }
 </script>
