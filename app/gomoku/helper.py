@@ -128,11 +128,11 @@ def get_board_status(gid):
     return {
         'gid': str(g['_id']),
         'board': g['board'],
-        'history': [{
-            'user': str(e['userid']),
-            'time': e['time'],
-            'move': e['move'],
-        } for e in g['history']],
+        # 'history': [{
+        #     'user': str(e['userid']),
+        #     'time': e['time'],
+        #     'move': e['move'],
+        # } for e in g['history']],
         'config': g['config'],
         'host': {
             'username': get_user_name(g['game_host']),
