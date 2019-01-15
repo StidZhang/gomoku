@@ -1,17 +1,39 @@
 <template>
-  <div class="info-box">
-    <h2>Information here</h2>
-    <a-button type="primary" @click="cancel()">
-      Cancel Game
+<div class="info-box">
+  <a-row>
+    <h2>{{ $store.state.username }}</h2>
+  </a-row>
+  <a-row>
+    <a-button type="primary" @click="cancelGame()">
+      {{ getButtonContext() }}
     </a-button>
-  </div>
+  </a-row>
+  <a-row>
+    <LogoutButton></LogoutButton>
+  </a-row>
+</div>
 </template>
 
 <script>
+import LogoutButton from '@/components/auth/Logout'
+
 export default {
+  props: {
+    gameStarted: Boolean
+  },
+  components: {
+    LogoutButton
+  },
   methods: {
-    cancel() {
+    cancelGame() {
       this.$socket.emit("gomoku_fail", this.$store.state.gid)
+    },
+    getButtonContext() {
+      if (this.gameStarted) {
+        return 'Surrender'
+      } else {
+        return 'Cancel Game'
+      }
     }
   }
 }
@@ -20,5 +42,6 @@ export default {
 <style>
 .info-box {
   margin: auto;
+  text-align: center;
 }
 </style>

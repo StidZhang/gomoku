@@ -6,13 +6,7 @@
       <rect :width="outSideRectSize" :height="outSideRectSize" x="1" y="1" stroke="#000" stroke-width="0.05" fill="none" />
       <line v-for="i in boardSize" v-bind:x1="2*i + 1" y1="1" v-bind:x2="2*i + 1" :y2="viewBoxSize-1" stroke="#000" stroke-width="0.05" fill="none"></line>
       <line v-for="i in boardSize" x1="1" v-bind:y1="2*i + 1" :x2="viewBoxSize-1" v-bind:y2="2*i + 1" stroke="#000" stroke-width="0.05" fill="none"></line>
-      <!-- <g v-for="(row, i) in currentBoard" :key="i">
-        <g v-for="(value, j) in row" :key="j">
-          <g v-if="value != 0">
-            <circle v-bind:cx="2*j + 1" v-bind:cy="2*i + 1" r="0.9" :fill="getColor(value)">
-          </g>
-        </g>
-      </g> -->
+
       <g v-for="(value, i) in boardInfo" :key="i">
         <g v-if="value != 0">
           <circle v-bind:cx="getXSvgcoord(i)" v-bind:cy="getYSvgcoord(i)" r="0.9" :fill="getColor(value)">
