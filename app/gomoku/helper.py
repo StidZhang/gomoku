@@ -169,6 +169,6 @@ def fail_game(uid, gid):
     gc.find_one_and_update({
         '_id': g['_id']
     }, {
-        '$set': {'status': int(status)}
+        '$set': {'status': int(fstatus)}
     })
     return fstatus, host, guest
