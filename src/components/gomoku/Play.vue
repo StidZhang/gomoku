@@ -1,15 +1,12 @@
 <template>
 <div class="playboard">
   <a-row>
-    <a-col :span="18">
-      <Board :boardSize="13"></Board>
+    <a-col :span="20">
+      <Board :boardSize="13" :boardInfo="boardInfo"></Board>
     </a-col>
-    <a-col :span="6">
+    <a-col :span="4">
       <a-row>
-        <InfoBox></InfoBox>
-      </a-row>
-      <a-row>
-        <SurrenderButton></SurrenderButton>
+        <InfoBox :gameStarted="getGameStatus()"></InfoBox>
       </a-row>
     </a-col>
   </a-row>
@@ -19,13 +16,23 @@
 <script>
 import Board from '@/components/gomoku/Board'
 import InfoBox from '@/components/gomoku/Info'
-import SurrenderButton from '@/components/gomoku/Surrender'
 
 export default {
   components: {
     Board,
-    InfoBox,
-    SurrenderButton
+    InfoBox
+  },
+  props: {
+    "boardInfo": Array
+  },
+  methods: {
+    getGameStatus() {
+      if (this.boardInfo.length != 0) {
+        return true
+      } else {
+        return false
+      }
+    }
   }
 }
 </script>

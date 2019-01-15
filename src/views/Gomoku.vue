@@ -1,19 +1,17 @@
 <template>
 <div class="gomoku">
   <div v-if="$store.state.gid">
-    <PlayBoard></PlayBoard>
+    <PlayBoard :boardInfo="rawBoard"></PlayBoard>
   </div>
   <div v-else>
     <InviteBox></InviteBox>
   </div>
-  <LogoutButton></LogoutButton>
 </div>
 </template>
 
 <script>
 import InviteBox from '@/components/gomoku/Invite'
 import PlayBoard from '@/components/gomoku/Play'
-import LogoutButton from '@/components/auth/Logout'
 
 export default {
   mounted() {
@@ -23,25 +21,32 @@ export default {
   },
   components: {
     InviteBox,
-    PlayBoard,
-    LogoutButton
+    PlayBoard
   },
-  computed: {
-    currentBoard: function() {
-      return rawBoard
+  data: function() {
+    return {
+      rawBoard: [],
+      gameHost: "",
+      gameGuest: "",
+      boardSize: 13 // Default size is 13
     }
-  },
-  data: {
-    rawBoard: []
   },
   sockets: {
     gomoku_status(data) {
       // Set current game id
-
       if (data.message) {
-        this.$message.info(data.message)
+        if (data.message.type == 40) {
+          this.$message.error(data.message.content)
+        } else {
+          this.$message.info(data.message.content)
+        }
       }
-      this.$store.dispatch("setGid", data.current_game)
+      if (data.current_game) {
+        // Reconnect behavior
+        this.joinGame(data.current_game)
+      } else {
+        this.$store.dispatch("resetGid")
+      }
       for (let i = 0; i < data.invites.length; i++) {
         this.$nextTick(() => this.displayNotification(data.invites[i]))
       }
@@ -52,12 +57,34 @@ export default {
     },
     // Joining a game and get the board data
     gomoku_board(data) {
-      this.$message.success("Game is ready to start!")
-      this.rawBoard = data
+      if (data.status == 1) {
+        this.$message.info("Waiting for guest to join in")
+      } else {
+        this.rawBoard = data.board
+        this.gameHost = data.host.username
+        this.gameGuest = data.guest.username
+        this.boardSize = data.config.size
+        if (data.status == 2 && this.gameHost == this.$store.state.username) {
+          this.$message.info("It's your turn!")
+        } else if (data.status == 3 && this.gameGuest == this.$store.state.username) {
+          this.$message.info("Waiting for guest to join in")
+        }
+      }
     },
     // Game Move data
     gomoku_board_update(data) {
-      console.log(data)
+      if (data.username == this.gameHost) {
+        // Set black stone
+        this.$set(this.rawBoard, data.y*this.boardSize+data.x, 1)
+      } else if (data.username == this.gameGuest) {
+        // Set white stone
+        this.$set(this.rawBoard, data.y*this.boardSize+data.x, 2)
+      } else {
+        console.log(data)
+      }
+      if (data.username != this.$store.state.username) {
+        this.$message.info("It's your turn!")
+      }
     },
     // Game ended
     gomoku_end(data) {
@@ -66,11 +93,17 @@ export default {
       } else {
         this.$message.success("You Lost!")
       }
+      // reset game status
+      this.rawBoard = []
+      this.gameHost = ""
+      this.gameGuest = ""
+      this.boardSize = 13
       this.$store.dispatch("resetGid")
     }
   },
   methods: {
     joinGame(gameid) {
+      this.$store.dispatch("setGid", gameid)
       this.$socket.emit("gomoku_join", gameid)
     },
     rejectGame(gameid) {
@@ -88,7 +121,7 @@ export default {
           return h('a-button', {
             props: {
               type: 'primary',
-              size: 'small',
+              size: 'medium',
             },
             on: {
               click: () => {

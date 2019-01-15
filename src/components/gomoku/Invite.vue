@@ -24,13 +24,19 @@
       </a-col>
     </a-row>
   </a-form>
+  <LogoutButton></LogoutButton>
 </div>
 </template>
 
 <script>
+import LogoutButton from '@/components/auth/Logout'
+
 export default {
   beforeCreate() {
     this.form = this.$form.createForm(this)
+  },
+  components: {
+    LogoutButton
   },
   methods: {
     handleSubmit(e) {

@@ -94,8 +94,9 @@ class GomokuSocket(Namespace):
     @auth_only
     def on_gomoku_join(self, gid):
         try:
-            if join_game(current_user.get_id(), gid):
-                join_room(gid)
+            ret = join_game(current_user.get_id(), gid)
+            join_room(gid)
+            if ret:
                 self.emit_to_game(gid, 'gomoku_board', get_board_status(gid))
             else:
                 self.emit_back('gomoku_board', get_board_status(gid))

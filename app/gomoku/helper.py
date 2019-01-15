@@ -128,7 +128,13 @@ def get_board_status(gid):
     return {
         'gid': str(g['_id']),
         'board': g['board'],
-        'history': g['history'],
+        'status': g['status'],
+        # 'history': [{
+        #     'user': str(e['userid']),
+        #     'time': e['time'],
+        #     'move': e['move'],
+        # } for e in g['history']],
+        'config': g['config'],
         'host': {
             'username': get_user_name(g['game_host']),
         },
@@ -164,6 +170,6 @@ def fail_game(uid, gid):
     gc.find_one_and_update({
         '_id': g['_id']
     }, {
-        '$set': {'status': int(status)}
+        '$set': {'status': int(fstatus)}
     })
     return fstatus, host, guest

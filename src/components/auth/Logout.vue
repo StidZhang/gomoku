@@ -26,3 +26,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.logout-button {
+  margin: 5px;
+}
+</style>
