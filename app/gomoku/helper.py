@@ -128,6 +128,7 @@ def get_board_status(gid):
     return {
         'gid': str(g['_id']),
         'board': g['board'],
+        'status': g['status'],
         # 'history': [{
         #     'user': str(e['userid']),
         #     'time': e['time'],
